@@ -1,0 +1,29 @@
+.fixedWidth {
+  /* width: 340px !important; */
+  width: 21rem !important;
+}
+.fixedHeight {
+  height: 35rem !important;
+}
+
+.myimg {
+  max-height: 15rem !important;
+}
+
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .fixedWidth {
+    width: 15rem !important;
+    /* height: 20rem !important; */
+  }
+}
+@media screen and (max-width: 640px) {
+  .fixedWidth {
+    width: 15rem !important;
+    /* height: 20rem !important; */
+  }
+
+  .myimg {
+    height: 160px !important;
+    /* object-fit: none !important; */
+  }
+}
