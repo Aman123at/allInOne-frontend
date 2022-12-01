@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { logout } from "../../ApiCalls/userApis";
+import { fetchUser, logout } from "../../ApiCalls/userApis";
 import { getLoggedInUser, setUser } from "../../slices/userSlice";
 
 const Header = () => {
@@ -10,10 +10,11 @@ const Header = () => {
   const user = useSelector(getLoggedInUser);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const handleLogout = async () => {
     logout()
       .then(() => {
-        dispatch(setUser(null));
+        dispatch(fetchUser());
         navigate("/");
       })
       .catch((e: any) => {
@@ -49,7 +50,12 @@ const Header = () => {
             d="M4 6h16M4 12h16M4 18h16"
           />
         </svg>
-        <p className="ml-1 text-white p-2 text-semibold">AllInOne</p>
+        <p
+          onClick={() => navigate("/")}
+          className="ml-1 text-white p-2 text-semibold cursor-pointer"
+        >
+          AllInOne
+        </p>
       </div>
 
       <div className="hidden md:flex lg:flex md:items-center lg:items-center  bg-gray-50 border border-solid border-gray-200 md:my-2 lg:my-2 rounded">
@@ -90,7 +96,7 @@ const Header = () => {
             </svg>
             <p className="ml-1 text-gray-100 md:hidden lg:block">Home</p>
           </div>
-          {user !== null && (
+          {user.status !== "error" && (
             <div
               className="flex items-center p-2 hover:cursor-pointer hover:scale-110"
               onClick={() => navigate("/cart")}
@@ -106,7 +112,7 @@ const Header = () => {
               <p className="ml-1 text-gray-100 md:hidden lg:block">Cart</p>
             </div>
           )}
-          {user !== null && (
+          {user.status !== "error" && (
             <div
               className="flex items-center p-2 hover:cursor-pointer hover:scale-110"
               onClick={() => navigate("/order")}
@@ -126,7 +132,7 @@ const Header = () => {
               <p className="ml-1 text-gray-100 md:hidden lg:block">Orders</p>
             </div>
           )}
-          {user !== null && (
+          {user.status !== "error" && (
             <div
               className="flex items-center p-2 hover:cursor-pointer hover:scale-110"
               onClick={handleLogout}
@@ -148,7 +154,7 @@ const Header = () => {
               <p className="ml-1 text-gray-100 md:hidden lg:block">Logout</p>
             </div>
           )}
-          {user === null && (
+          {user.status === "error" && (
             <div
               className="flex items-center p-2 hover:cursor-pointer hover:scale-110"
               onClick={() => navigate("/login")}
@@ -184,7 +190,7 @@ const Header = () => {
               <p className="ml-1 text-gray-100 md:hidden lg:block">Login</p>
             </div>
           )}
-          {user === null && (
+          {user.status === "error" && (
             <div
               className="flex items-center p-2 hover:cursor-pointer hover:scale-110"
               onClick={() => navigate("/signup")}
@@ -222,7 +228,7 @@ const Header = () => {
           )}
         </div>
 
-        {user !== null && (
+        {user.status !== "error" && (
           <img
             className="rounded-full w-10 h-10 m-2"
             src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQU2JRbbl3LBOm_an3eI5iplFhOoLESyBwUfmWDO49BS1EYuGUE"

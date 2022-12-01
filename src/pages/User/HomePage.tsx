@@ -1,33 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { getAllCartItems } from "../../ApiCalls/cartApis";
 import { getAllCategory } from "../../ApiCalls/categoryApis";
 import { fetchProducts } from "../../ApiCalls/productApis";
 import { fetchUser } from "../../ApiCalls/userApis";
 import ProductWithCategory from "../../components/User/ProductWithCategory";
 import ShowAllProducts from "../../components/User/ShowAllProducts";
+import { getCartItems } from "../../slices/cartSlice";
 import { getAllCategories } from "../../slices/categorySlice";
 import { setLoader } from "../../slices/commonSlice";
 import { getAllProducts } from "../../slices/productSlice";
-import { setUser } from "../../slices/userSlice";
+import { getLoggedInUser, setUser } from "../../slices/userSlice";
 
 import Header from "./Header";
 
 const HomePage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { status, data } = useSelector(getAllProducts);
   const allCategories = useSelector(getAllCategories);
+  const loggedInUser = useSelector(getLoggedInUser);
+  const cartItems = useSelector(getCartItems);
   useEffect(() => {
-    fetchUser()
-      .then((response: any) => {
-        if (response && response.success) {
-          dispatch(setUser(response.user));
-        } else {
-          dispatch(setUser(null));
-        }
-      })
-      .catch((e: any) => dispatch(setUser(null)));
-  }, []);
+    if (loggedInUser.status === "idle") {
+      dispatch(fetchUser());
+    }
+    if (loggedInUser.status === "error") {
+      navigate("/");
+    }
+  }, [loggedInUser.status]);
   useEffect(() => {
     if (status === "idle") {
       dispatch(fetchProducts());
@@ -88,6 +91,7 @@ const HomePage = () => {
     return dataToRet;
   };
   const [completeData, setCompleteData] = useState<any>([]);
+  console.log("CompleteData", completeData);
   useEffect(() => {
     if (status === "idle") {
       dispatch(setLoader(true));
@@ -108,6 +112,31 @@ const HomePage = () => {
       dispatch(setLoader(false));
     }
   }, [status, allCategories.status]);
+
+  useEffect(() => {
+    if (cartItems.status === "idle") {
+      dispatch(setLoader(true));
+      dispatch(getAllCartItems());
+    }
+    if (cartItems.status === "error") {
+      dispatch(setLoader(false));
+      // toast.error(
+      //   "Something Gone Wrong While Fetching Cart Items, Please reload the page.",
+      //   {
+      //     position: "top-right",
+      //     autoClose: 5000,
+      //     hideProgressBar: false,
+      //     closeOnClick: true,
+      //     pauseOnHover: true,
+      //     draggable: true,
+      //     progress: undefined,
+      //   }
+      // );
+    }
+    if (cartItems.status === "finished") {
+      dispatch(setLoader(false));
+    }
+  }, [cartItems.status]);
 
   const [showAll, setShowAll] = useState<Boolean>(false);
   const [showAllCategory, setShowAllCategory] = useState<string>("");

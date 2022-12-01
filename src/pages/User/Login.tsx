@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { setLoader } from "../../slices/commonSlice";
 import validator from "validator";
-import { login } from "../../ApiCalls/userApis";
+import { fetchUser, login } from "../../ApiCalls/userApis";
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -52,6 +52,8 @@ const Login = () => {
               draggable: true,
               progress: undefined,
             });
+            dispatch(fetchUser());
+
             navigate("/");
           }
         })

@@ -7,7 +7,7 @@ import { getAllCategories } from "../../slices/categorySlice";
 import {
   exportAsExcelFile,
   transform,
-} from "../../utils/downloadExcelTemplate";
+} from "../../utils/downloadExcelTemplate.js";
 import {
   getCategoryList,
   getSubCategoryList,

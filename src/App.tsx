@@ -18,6 +18,7 @@ import { setUser } from "./slices/userSlice";
 import CartPage from "./pages/User/CartPage";
 import OrderPage from "./pages/User/OrderPage";
 import ProductDetails from "./pages/User/ProductDetails";
+import Checkout from "./pages/User/Checkout";
 function App() {
   const loaderState = useSelector(getLoader);
   const dispatch = useDispatch();
@@ -71,6 +72,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="/order" element={<OrderPage />} />
             <Route path="/product/:id" element={<ProductDetails />} />
           </Routes>

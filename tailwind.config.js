@@ -12,6 +12,7 @@ module.exports = {
     extend: {},
   },
   plugins: [
-    require('tw-elements/dist/plugin')
+    require('tw-elements/dist/plugin'),
+    require('tailwind-scrollbar-hide')
   ],
 }
