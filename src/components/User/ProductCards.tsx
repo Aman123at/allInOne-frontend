@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { truncate } from "../../utils/utils";
 import "./ProductCard.css";
 const ProductCards = ({ data }: any) => {
-  console.log("Data", data);
   const navigate = useNavigate();
   return (
     <div className="flex justify-center m-3 ">

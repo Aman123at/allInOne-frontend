@@ -31,9 +31,9 @@ const AddressModal = ({
   });
 
   const [saveAd, setSaveAd] = useState<Boolean>(false);
-  console.log("Save Address", saveAd);
+  
   const handleSubmit = () => {
-    console.log("Cheout Details", checkoutDetails);
+    
     if (
       !checkoutDetails.firstName ||
       !checkoutDetails.lastName ||

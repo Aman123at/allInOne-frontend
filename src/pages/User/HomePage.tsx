@@ -91,7 +91,6 @@ const HomePage = () => {
     return dataToRet;
   };
   const [completeData, setCompleteData] = useState<any>([]);
-  console.log("CompleteData", completeData);
   useEffect(() => {
     if (status === "idle") {
       dispatch(setLoader(true));

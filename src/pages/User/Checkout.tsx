@@ -1,7 +1,10 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState,useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import useRazorpay, { RazorpayOptions } from "react-razorpay";
+import { v4 as uuidv4 } from "uuid";
 import {
+  clearUsersCart,
   fetchCities,
   fetchCountries,
   fetchPinCodeByCity,
@@ -11,16 +14,19 @@ import {
   deleteAddressById,
   fetchSavedAddresses,
 } from "../../ApiCalls/checkoutApis";
-import { getRazorpayKey } from "../../ApiCalls/paymentApis";
+import { getRazorpayKey, getRazorpayOrder } from "../../ApiCalls/paymentApis";
 import { fetchUser } from "../../ApiCalls/userApis";
-import { getCartItems } from "../../slices/cartSlice";
-import { deleteAddress, getSavedAddresses } from "../../slices/checkoutSlice";
+import { clearCart, getCartItems } from "../../slices/cartSlice";
+import { deleteAddress, getSavedAddresses, setInvoiceDetails } from "../../slices/checkoutSlice";
 import { setLoader } from "../../slices/commonSlice";
 import { getLoggedInUser } from "../../slices/userSlice";
 import AddressModal from "../../utils/AddressModal";
 import Header from "./Header";
+import { createOrder } from "../../ApiCalls/orderApis";
+import InvoiceModal from "../../utils/InvoiceModal";
 
 function Checkout() {
+  const Razorpay = useRazorpay();
   const { status, data } = useSelector(getCartItems);
   const loggedInUser = useSelector(getLoggedInUser);
   const savedAddresses = useSelector(getSavedAddresses);
@@ -44,6 +50,8 @@ function Checkout() {
     pinCode: "",
     phone: "",
   });
+
+  const [enableInvoice,setEnableInvoice]= useState(false)
   useEffect(() => {
     getRazorpayKey()
       .then((res: any) => {
@@ -109,7 +117,7 @@ function Checkout() {
     dispatch(setLoader(true));
     fetchCountries()
       .then((res: any) => {
-        console.log(res);
+        // console.log(res);
         if (res.error === false && res.data && res.data.length > 0) {
           setCountryWithStateData(res.data);
           let allCountries: any = grabCountryName(res.data);
@@ -204,73 +212,108 @@ function Checkout() {
   };
 
   // payment functions
-  function loadScript(src: any) {
-    return new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.src = src;
-      script.onload = () => {
-        resolve(true);
-      };
-      script.onerror = () => {
-        resolve(false);
-      };
-      document.body.appendChild(script);
-    });
+  // const handlePaymentRazor=async()=>{
+  //   dispatch(setLoader(true))
+  //   let shippingCharge = delivery==="quick"?100:50
+  //   let neworder = await getRazorpayOrder(getOverallPrice()+shippingCharge)
+  //   dispatch(setLoader(true))
+  //   console.log("MyNewOrderFromServer",neworder)
+
+  // }
+  const extractInvoiceFromCart=(cartData:any)=>{
+      let toret:any = []
+      cartData.map((item:any)=>{
+        let obj:any = {}
+        obj["productName"] = item.product.name
+        obj["productId"] = item.product.prodId
+        obj["productPrice"] = item.product.price
+        obj["quantity"] = item.quantity
+
+        toret.push(obj)
+      })
+
+      return toret
+
   }
-
-  async function displayRazorpay() {
-    const res = await loadScript(
-      "https://checkout.razorpay.com/v1/checkout.js"
-    );
-
-    if (!res) {
-      alert("Razorpay SDK failed to load. Are you online?");
-      return;
+  const handleCreateOrder=(razorpay_order_id:any,razorpay_payment_id:any)=>{
+    // create order
+    let payload:any = {
+      products: extractInvoiceFromCart(data.cart),
+      order_id:razorpay_order_id,
+      payment_id:razorpay_payment_id
     }
+    createOrder(payload)
+    .then((response:any)=>{
+      let loggedIndata = loggedInUser.data;
 
-    // const result = await axios.post("http://localhost:5000/payment/orders");
-
-    // if (!result) {
-    //     alert("Server error. Are you online?");
-    //     return;
-    // }
-
-    // const { amount, id: order_id, currency } = result.data;
-
-    // const options = {
-    //     key: "rzp_test_r6FiJfddJh76SI", // Enter the Key ID generated from the Dashboard
-    //     amount: amount.toString(),
-    //     currency: currency,
-
-    //     order_id: order_id,
-    //     handler: async function (response:any) {
-    //         const data = {
-    //             orderCreationId: order_id,
-    //             razorpayPaymentId: response.razorpay_payment_id,
-    //             razorpayOrderId: response.razorpay_order_id,
-    //             razorpaySignature: response.razorpay_signature,
-    //         };
-
-    //         // const result = await axios.post("http://localhost:5000/payment/success", data);
-
-    //         alert(result.data.msg);
-    //     },
-    //     // prefill: {
-    //     //     name: "Soumya Dey",
-    //     //     email: "SoumyaDey@example.com",
-    //     //     contact: "9999999999",
-    //     // },
-    //     // notes: {
-    //     //     address: "Soumya Dey Corporate Office",
-    //     // },
-    //     theme: {
-    //         color: "#61dafb",
-    //     },
-    // };
-
-    // const paymentObject = new window.Razorpay(options);
-    // paymentObject.open();
+      
+      let loggedUserId = loggedIndata.user ? loggedIndata.user._id : "";
+      if(response.success){
+        handleCreateInvoice()
+        setTimeout(() => {
+          clearUsersCart(loggedUserId)
+          .then((res:any)=>{
+            dispatch(clearCart())
+          })
+          .catch((e:any)=>console.log(e))
+          setEnableInvoice(true)
+          console.log("Order created successfully.",response)
+        }, 200);
+      }
+    })
+    .catch((e:any)=>console.log("error while creating order",e))
   }
+  const handleCreateInvoice=()=>{
+    // create invoice
+    let myInvoice = extractInvoiceFromCart(data.cart)
+    dispatch(setInvoiceDetails({
+      products:myInvoice,
+      shippingCharge:delivery==="quick"?100:50
+
+    }))
+  }
+  const handlePaymentRazorClient = useCallback(async ()=>{
+    let shippingCharge = delivery==="quick"?100:50
+    let neworder = await getRazorpayOrder((getOverallPrice()+shippingCharge)*100)
+    const options: RazorpayOptions = {
+      key: rezorpaykey,
+      amount: neworder && neworder.order? neworder.amount :`${getOverallPrice()+shippingCharge}`,
+      currency: "INR",
+      name: "All In One Org",
+      description: "Test Transaction",
+      image: "https://example.com/your_logo",
+      order_id: neworder && neworder.order ? neworder.order.id : `${uuidv4()}`,
+      handler: (res) => {
+        console.log("Payment Response>>",res);
+        if(res){
+          
+          console.log("Inside success payment")
+          handleCreateOrder(res.razorpay_order_id,res.razorpay_payment_id)
+
+
+        }
+        else{
+          console.log("Inside failure payment");
+        }
+      },
+      prefill: {
+        name: `${checkoutDetails.firstName+' '+checkoutDetails.lastName }`,
+        email: `${checkoutDetails.email}`,
+        contact: `${checkoutDetails.phone}`,
+      },
+      notes: {
+        address: "Razorpay Corporate Office",
+      },
+      theme: {
+        color: "#3399cc",
+      },
+    };
+
+    const rzpay = new Razorpay(options);
+    rzpay.open();
+
+  },[Razorpay])
+
   return (
     <div>
       <Header />
@@ -286,6 +329,8 @@ function Checkout() {
         statesList={statesList}
         loggedInUser={loggedInUser}
       />
+      {enableInvoice ? <div><InvoiceModal /></div> :
+      
       <div className="flex  ">
         <div className="m-6 ">
           <p className="font-semibold text-xl">Contact information</p>
@@ -763,15 +808,24 @@ function Checkout() {
               type="button"
               data-mdb-ripple="true"
               data-mdb-ripple-color="light"
+              onClick={()=>{
+                if(payment=='r'){
+                  handlePaymentRazorClient()
+                  // handlePaymentRazor()
+                }else{
+                  // stripe payment handle
+                }
+              }}
               className="inline-block px-6 w-full my-3 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
             >
-              Submit
+              Checkout
             </button>
           </div>
         </div>
       </div>
+      }
     </div>
   );
 }
-
 export default Checkout;
+

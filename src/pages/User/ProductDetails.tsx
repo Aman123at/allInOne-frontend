@@ -87,9 +87,9 @@ function ProductDetails() {
     if (loggedInUser.status === "idle") {
       dispatch(fetchUser());
     }
-    if (loggedInUser.status === "error") {
-      navigate("/");
-    }
+    // if (loggedInUser.status === "error") {
+    //   navigate("/");
+    // }
   }, [loggedInUser.status]);
   const isProductInCart = (prod: any, data: any) => {
     let filtered: any = data.filter(
@@ -113,11 +113,12 @@ function ProductDetails() {
   }, [status, productInfo]);
   const handleAddItemsToCart = async () => {
     setButtonLoader(true);
+    console.log("ProductInfo",productInfo)
     let payloadData: any = {
       quantity,
       product: {
         name: productInfo.name,
-
+        prodId:productInfo._id,
         category: productInfo.category,
         subCategory: productInfo.subCategory,
         price: productInfo.price,

@@ -17,6 +17,10 @@ export const removeItemsFromCart:any=async(id:any)=>{
     let res = await axios.delete(`${CONNECTION_URL}/cart/${id}`,{withCredentials:true})
     return res.data
 }
+export const clearUsersCart:any=async(userid:String)=>{
+    let res = await axios.delete(`${CONNECTION_URL}/cart/clear/${userid}`,{withCredentials:true})
+    return res.data
+}
 export const fetchCountries:any = async()=>{
     let res = await axios.get(`https://countriesnow.space/api/v0.1/countries/states`)
     return res.data

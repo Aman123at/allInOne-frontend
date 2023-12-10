@@ -10,6 +10,7 @@ import { RootState } from "../store";
 const initialState = {
  
   address: {status:'idle',data:{}} as any,
+  invoice:{}
   
 };
 
@@ -24,7 +25,7 @@ export const checkoutSlice = createSlice({
   
  
     setAddress: (state, action: any) => {
-        console.log("Set Address Payload",action.payload)
+        // console.log("Set Address Payload",action.payload)
      if(state.address.data.address ){
         state.address.data.address = [...state.address.data.address,action.payload]
      }else{
@@ -32,6 +33,11 @@ export const checkoutSlice = createSlice({
          state.address.data.address=[action.payload]
      }
     },
+
+    setInvoiceDetails: (state, action: any) => {
+      
+   state.invoice = action.payload
+  },
 
     deleteAddress:(state,action:any)=>{
         let dataArr:any = state.address.data.address
@@ -50,7 +56,7 @@ export const checkoutSlice = createSlice({
     });
     builder.addCase(fetchSavedAddresses.fulfilled, (state, action) => {
       state.address.status = "finished";
-      console.log("ACTION payload",action.payload)
+      // console.log("ACTION payload",action.payload)
         let modifiedData:any = []
         action.payload.address.map((val:any)=>{
             let obj = {...val,temp:false}
@@ -81,10 +87,12 @@ export const {
 //   setIsAOPPlan,
 //   updateSelectedPlan,
   deleteAddress,
-  setAddress
+  setAddress,
+  setInvoiceDetails
 } = checkoutSlice.actions;
 
 export const getSavedAddresses = (state: RootState) => state.checkout.address;
+export const getInvoiceDetails = (state: RootState) => state.checkout.invoice;
 
 
 

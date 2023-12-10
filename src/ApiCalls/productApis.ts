@@ -12,7 +12,7 @@ async()=>{
 
 
 export const getOneProductById:any = async(id:any)=>{
-    let res = await axios.get(`${CONNECTION_URL}/product/${id}`,{withCredentials:true})
+    let res = await axios.get(`${CONNECTION_URL}/product/${id}`)
     return res.data
 }
 export const addProduct:any = async(data:any)=>{

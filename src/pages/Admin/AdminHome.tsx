@@ -10,6 +10,7 @@ import { getAllCategories } from "../../slices/categorySlice";
 import { setLoader } from "../../slices/commonSlice";
 import { getAllProducts } from "../../slices/productSlice";
 import AdminCategory from "./AdminCategory";
+import AdminOrder from "./AdminOrder";
 import AdminProduct from "./AdminProduct";
 import AdminStats from "./AdminStats";
 
@@ -21,7 +22,7 @@ const AdminHome = () => {
   const [cookies, setCookie, removeCookie] = useCookies(["token"]);
 
   useEffect(() => {
-    if (!localStorage.getItem("token")) {
+    if (!localStorage.getItem("allinone_token")) {
       navigate("/admin");
     }
     if (status === "idle") {
@@ -43,7 +44,7 @@ const AdminHome = () => {
   }, [status]);
 
   useEffect(() => {
-    if (!localStorage.getItem("token")) {
+    if (!localStorage.getItem("allinone_token")) {
       navigate("/admin");
     }
     if (products.status === "idle") {
@@ -174,6 +175,33 @@ const AdminHome = () => {
           </li>
           <li className="nav-item flex-grow text-center" role="presentation">
             <a
+              href="#tabs-ordersVertical"
+              className="
+                            nav-link
+                            block
+                            font-medium
+                            text-xs
+                            leading-tight
+                            uppercase
+                            border-x-0 border-t-0 border-b-2 border-transparent
+                            px-6
+                            py-3
+                            my-2
+                            hover:border-transparent hover:bg-gray-100
+                            focus:border-transparent
+                            "
+              id="tabs-orders-tabVertical"
+              data-bs-toggle="pill"
+              data-bs-target="#tabs-ordersVertical"
+              role="tab"
+              aria-controls="tabs-ordersVertical"
+              aria-selected="false"
+            >
+              Orders
+            </a>
+          </li>
+          <li className="nav-item flex-grow text-center" role="presentation">
+            <a
               href="#tabs-analyticsVertical"
               className="
                             nav-link
@@ -227,6 +255,14 @@ const AdminHome = () => {
             aria-labelledby="tabs-product-tabVertical"
           >
             <AdminProduct />
+          </div>
+          <div
+            className="tab-pane fade"
+            id="tabs-ordersVertical"
+            role="tabpanel"
+            aria-labelledby="tabs-orders-tabVertical"
+          >
+            <AdminOrder />
           </div>
           <div
             className="tab-pane fade"

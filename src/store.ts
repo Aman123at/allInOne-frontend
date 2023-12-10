@@ -2,6 +2,7 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
 import categoryReducer from './slices/categorySlice';
 import cartReducer from './slices/cartSlice';
+import orderReducer from './slices/orderSlice';
 import commonReducer from './slices/commonSlice';
 import productReducer from './slices/productSlice';
 import userReducer from './slices/userSlice';
@@ -12,6 +13,7 @@ export const store = configureStore({
   reducer: {
     category: categoryReducer,
     cart: cartReducer,
+    orders: orderReducer,
     common:commonReducer,
     product:productReducer,
     user:userReducer,

@@ -20,7 +20,10 @@ export const cartSlice = createSlice({
   reducers: {
     
 
-  
+    clearCart:(state)=>{
+      state.cart.status = 'finished'
+      state.cart.data = []
+    }
  
     // setSelectedPlan: (state, action: PayloadAction<ISelectedPlan>) => {
     //   state.selectedPlan = action.payload;
@@ -50,23 +53,9 @@ export const cartSlice = createSlice({
   },
 });
 
-// export const {
-//   setUserInfo,
-//   setSelectedPlan,
-//   setActionPlansPromisesList,
-//   clearPlanSummary,
-//   setDoNotPushPlans,
-//   setSelectedUnit,
-//   updateSimulationVersion,
-//   setCurrentUserProfile,
-//   setPlanSummary,
-//   updateTooltipSettings,
-//   updatePlanSummary2,
-//   setIsAOPPlan,
-//   updateSelectedPlan,
-//   setLoaderForActionPlan,
-//   updatePlanSummary2OnCreatePlan
-// } = userProfileSlice.actions;
+export const {
+  clearCart
+} = cartSlice.actions;
 
 export const getCartItems = (state: RootState) => state.cart.cart;
 

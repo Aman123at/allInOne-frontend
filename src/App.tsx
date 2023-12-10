@@ -19,6 +19,7 @@ import CartPage from "./pages/User/CartPage";
 import OrderPage from "./pages/User/OrderPage";
 import ProductDetails from "./pages/User/ProductDetails";
 import Checkout from "./pages/User/Checkout";
+import OrderDetails from "./pages/User/OrderDetails";
 function App() {
   const loaderState = useSelector(getLoader);
   const dispatch = useDispatch();
@@ -74,6 +75,7 @@ function App() {
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order" element={<OrderPage />} />
+            <Route path="/order/:id" element={<OrderDetails />} />
             <Route path="/product/:id" element={<ProductDetails />} />
           </Routes>
         </BrowserRouter>

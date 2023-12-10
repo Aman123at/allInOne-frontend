@@ -19,7 +19,7 @@ const AdminLogin = () => {
 
 
 
-        if (localStorage.getItem('token')) {
+        if (localStorage.getItem('allinone_token')) {
             navigate('/admin/home')
         }
     }, [])
@@ -40,7 +40,7 @@ const AdminLogin = () => {
                 .then((resp: any) => {
 
                     if (resp.user && resp.user.role == 'admin') {
-                        localStorage.setItem('token', resp.token)
+                        localStorage.setItem('allinone_token', resp.token)
 
                         navigate('/admin/home')
                     } else {
